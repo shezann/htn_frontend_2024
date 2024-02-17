@@ -1,0 +1,9 @@
+.eventsTable {
+  margin-top: 80px; 
+}
+
+.tableContainer {
+  padding: 0 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
