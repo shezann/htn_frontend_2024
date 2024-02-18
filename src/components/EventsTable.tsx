@@ -15,7 +15,6 @@ const EventsTable = () => {
 
   const [initialSort, setInitialSort] = useState(() => {
     const savedSort = localStorage.getItem("tableSort");
-    console.log(savedSort);
     return savedSort
       ? JSON.parse(savedSort)
       : [{ id: "Start Time", desc: false }];
