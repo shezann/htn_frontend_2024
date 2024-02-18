@@ -13,6 +13,14 @@ const EventsTable = () => {
   const [events, setEvents] = useState<TEvent[]>([]);
   const { searchQuery } = useSearch();
 
+  const [initialSort, setInitialSort] = useState(() => {
+    const savedSort = localStorage.getItem("tableSort");
+    console.log(savedSort);
+    return savedSort
+      ? JSON.parse(savedSort)
+      : [{ id: "Start Time", desc: false }];
+  });
+
   const user = useAuth();
   const navigate = useNavigate();
   const url = "https://api.hackthenorth.com/v3/graphql";
@@ -32,6 +40,10 @@ const EventsTable = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("tableSort", JSON.stringify(initialSort));
+  }, [initialSort]);
 
   const handleRowClick = (id: number) => {
     navigate(`/event/${id}`);
@@ -118,8 +130,23 @@ const EventsTable = () => {
     []
   );
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { sortBy },
+  } = useTable(
+    { columns, data, initialState: { sortBy: initialSort } },
+    useSortBy
+  );
+
+  useEffect(() => {
+    if (sortBy !== initialSort) {
+      setInitialSort(sortBy);
+    }
+  }, [sortBy, initialSort]);
 
   return (
     <div className="tableContainer">
