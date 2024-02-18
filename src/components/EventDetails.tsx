@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { request, gql } from "graphql-request";
 import { useAuth } from "../context/AuthContext";
-import { Box, Heading, Text, Link, VStack } from "@chakra-ui/react";
+import { Box, Text, Link, VStack } from "@chakra-ui/react";
 import "./EventDetails.css";
 
 const EventDetails = () => {
@@ -35,7 +35,7 @@ const EventDetails = () => {
         } else {
           setEvent({
             ...data.sampleEvent,
-            event_type: eventTypeDisplay(data.sampleEvent.event_type), // Use the display function for event type
+            event_type: eventTypeDisplay(data.sampleEvent.event_type),
           });
         }
       } catch (error) {
@@ -49,16 +49,16 @@ const EventDetails = () => {
   if (!event) return <Box>Loading...</Box>;
 
   return (
-    <Box className="container">
+    <div className="container">
       <VStack spacing={4} align="start">
-        <Heading as="h1" size="xl">
+        <Text fontSize="4xl" fontWeight="bold">
           {event.name}
-        </Heading>
+        </Text>
         <Text fontSize="lg">
           <strong>Type:</strong> {event.event_type}
         </Text>
         <Text fontSize="lg">
-          <strong>Start Time:</strong>{" "}
+          <strong>Start Time:</strong>
           {new Date(event.start_time).toLocaleString()}
         </Text>
         <Text fontSize="lg">
@@ -69,7 +69,7 @@ const EventDetails = () => {
         </Text>
         {event.public_url && (
           <Text fontSize="lg">
-            <strong>Public URL:</strong>{" "}
+            <strong>Public URL:</strong>
             <Link href={event.public_url} isExternal color="blue.500">
               {event.public_url}
             </Link>
@@ -77,14 +77,14 @@ const EventDetails = () => {
         )}
         {user && event.private_url && (
           <Text fontSize="lg">
-            <strong>Private URL:</strong>{" "}
+            <strong>Private URL:</strong>
             <Link href={event.private_url} isExternal color="blue.500">
               {event.private_url}
             </Link>
           </Text>
         )}
       </VStack>
-    </Box>
+    </div>
   );
 };
 

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { request, gql } from "graphql-request";
 import { TEvent, TEndpointResponse } from "../utils/types";
 import { useTable, useSortBy } from "react-table";
-import { Table, Thead, Tbody, Tr, Th, Td, Box, Input } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 
 const EventsTable = () => {
@@ -57,6 +57,17 @@ const EventsTable = () => {
         return "Activity";
       case "tech_talk":
         return "Tech Talk";
+      default:
+        return "";
+    }
+  };
+
+  const statusDisplay = (status: string) => {
+    switch (status) {
+      case "public":
+        return "Public";
+      case "private":
+        return "Private";
       default:
         return "";
     }
@@ -124,7 +135,7 @@ const EventsTable = () => {
       },
       {
         Header: "Status",
-        accessor: "permission",
+        accessor: (row) => statusDisplay(row.permission),
       },
     ],
     []

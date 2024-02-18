@@ -1,5 +1,7 @@
 .container {
   margin-top: 80px; 
-  padding: 20px;
+  padding: 24px;
+  justify-content: normal;
+  align-items: normal;
 }
 

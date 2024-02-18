@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Text, Button, Tooltip, Input } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
 import { useSearch } from "../context/SearchContext";
@@ -8,6 +8,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const { searchQuery, setSearchQuery } = useSearch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleAuthClick = () => {
     if (user) {
@@ -21,17 +22,21 @@ const Navbar = () => {
   return (
     <>
       <nav className="navbar">
-        <Text fontSize="3xl" fontWeight="bold">
-          Events
-        </Text>
-        <Input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search events"
-          size="md"
-          width="auto"
-          ml="2"
-        />
+        <Link to="/">
+          <Text fontSize="3xl" fontWeight="bold">
+            Events
+          </Text>
+        </Link>
+        {location.pathname === "/" && (
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search events"
+            size="md"
+            width="auto"
+            ml="2"
+          />
+        )}
         <Tooltip label={user ? "Logout" : "Login for more events"}>
           <Button
             onClick={handleAuthClick}
