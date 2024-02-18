@@ -1,21 +1,30 @@
 import "./EventsTable.css";
 import { useEffect, useState, useMemo } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useSearch } from "../context/SearchContext";
+import { useNavigate } from "react-router-dom";
 import { request, gql } from "graphql-request";
 import { TEvent, TEndpointResponse } from "../utils/types";
 import { useTable, useSortBy } from "react-table";
-import { Table, Thead, Tbody, Tr, Th, Td, Box } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Box, Input } from "@chakra-ui/react";
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 
 const EventsTable = () => {
   const [events, setEvents] = useState<TEvent[]>([]);
+  const { searchQuery } = useSearch();
 
+  const user = useAuth();
+  const navigate = useNavigate();
   const url = "https://api.hackthenorth.com/v3/graphql";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await request<TEndpointResponse>(url, get_events);
-        setEvents(data.sampleEvents);
+        const filteredEvents = data.sampleEvents.filter(
+          (event: TEvent) => event.permission === "public" || user.user !== null
+        );
+        setEvents(filteredEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
@@ -24,8 +33,8 @@ const EventsTable = () => {
     fetchData();
   }, []);
 
-  const handleRowClick = (id: Number) => {
-    console.log("Row clicked", id);
+  const handleRowClick = (id: number) => {
+    navigate(`/event/${id}`);
   };
 
   const eventTypeDisplay = (eventType: string) => {
@@ -41,7 +50,20 @@ const EventsTable = () => {
     }
   };
 
-  const data = useMemo(() => events, [events]);
+  const data = useMemo(() => {
+    if (!searchQuery) return events;
+
+    return events.filter((event) => {
+      return (
+        event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.event_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.speakers.some((speaker) =>
+          speaker.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    });
+  }, [events, searchQuery]);
 
   const columns = useMemo(
     () => [
@@ -128,7 +150,11 @@ const EventsTable = () => {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <Tr {...row.getRowProps()}>
+              <Tr
+                {...row.getRowProps({
+                  onClick: () => handleRowClick(row.original.id),
+                })}
+              >
                 {row.cells.map((cell) => (
                   <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
                 ))}
