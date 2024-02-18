@@ -11,6 +11,7 @@ const EventDetails = () => {
   id = parseFloat(id);
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
+  const [relatedEventNames, setRelatedEventNames] = useState([]);
 
   const eventTypeDisplay = (eventType) => {
     switch (eventType) {
@@ -38,6 +39,13 @@ const EventDetails = () => {
             event_type: eventTypeDisplay(data.sampleEvent.event_type),
           });
         }
+        const relatedEvents = await Promise.all(
+          data.sampleEvent.related_events.map(async (id) => {
+            const relatedEventData = await request(url, get_event, { id });
+            return relatedEventData.sampleEvent;
+          })
+        );
+        setRelatedEventNames(relatedEvents);
       } catch (error) {
         console.error("Error fetching event details:", error);
       }
@@ -55,21 +63,22 @@ const EventDetails = () => {
           {event.name}
         </Text>
         <Text fontSize="lg">
-          <strong>Type:</strong> {event.event_type}
+          <strong>Type: </strong> {event.event_type}
         </Text>
         <Text fontSize="lg">
-          <strong>Start Time:</strong>
+          <strong>Start Time: </strong>
           {new Date(event.start_time).toLocaleString()}
         </Text>
         <Text fontSize="lg">
-          <strong>End Time:</strong> {new Date(event.end_time).toLocaleString()}
+          <strong>End Time: </strong>{" "}
+          {new Date(event.end_time).toLocaleString()}
         </Text>
         <Text fontSize="lg">
-          <strong>Description:</strong> {event.description}
+          <strong>Description: </strong> {event.description}
         </Text>
         {event.public_url && (
           <Text fontSize="lg">
-            <strong>Public URL:</strong>
+            <strong>Public URL: </strong>
             <Link href={event.public_url} isExternal color="blue.500">
               {event.public_url}
             </Link>
@@ -77,12 +86,21 @@ const EventDetails = () => {
         )}
         {user && event.private_url && (
           <Text fontSize="lg">
-            <strong>Private URL:</strong>
+            <strong>Private URL: </strong>
             <Link href={event.private_url} isExternal color="blue.500">
               {event.private_url}
             </Link>
           </Text>
         )}
+        <Text fontSize="lg">
+          <strong>Related Events: </strong>
+          {relatedEventNames.map((event, index) => (
+            <span key={index}>
+              <Link href={`/event/${event.id}`}>{event.name}</Link>
+              {index < relatedEventNames.length - 1 && ", "}
+            </span>
+          ))}
+        </Text>
       </VStack>
     </div>
   );
@@ -100,6 +118,7 @@ const get_event = gql`
       description
       public_url
       private_url
+      related_events
     }
   }
 `;
